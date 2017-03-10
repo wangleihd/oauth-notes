@@ -1,16 +1,17 @@
 # OAuth 
 
 ## 目录
-- 1. Roles: Applications, APIs and Users
-- 2. Creating an App
-- 3. Authorization: Obtaining an access token
-  - 3.1 Web Server Apps
-  - 3.2 Single-Page Apps
-  - 3.3 Mobile Apps
-  - 3.4 Other Grant Types
-- 4. Making Authenticated Requests
+- 1. 角色
+- 2. 创建应用
+- 3. 授权过程
+  - 3.1 服务端应用
+  - 3.2 浏览器应用
+  - 3.3 移动应用
+  - 3.4 密码
+  - 3.5 应用访问
+- 4. 被授权请求
 
-## 1. 角色 Roles: Applications, APIs and Users
+## 1. 角色
 
 **Client**  应用程序 Applications
 
@@ -28,7 +29,7 @@
 
 用户，资源所有者，他允许自己账号的部分资源被访问。
 
-## 2. 创建应用 Creating an App
+## 2. 创建应用
 
 在OAuth过程开始之前，必须在服务里注册这个app。 注册新的app时，需要提供的基本信息包括：应用名称，网址，logo以及一个redirect URI来重定向用户。
 
@@ -47,7 +48,9 @@ Native apps may register a redirect URI with a custom URL scheme for the applica
 - **client ID** 是公开信息，用来构建登录地址，或被页面里面的js代码所引用。
 - **client secret** 必须保密，如果一个应用不能保证保密，比如SPA或原生应用，这时就不使用secret。 理想情况下，一开始服务就不应该将secrect发给这些应用。
 
-## 3. 授权过程：获取一个访问token
+## 3. 授权过程
+
+授权过程就是获取一个 access token的过程。
 
 OAuth2 得第一步是获得用户的授权，在网页或移动应用，一般是向用户显示一个服务提供的界面。
 
@@ -60,7 +63,7 @@ OAuth2 得第一步是获得用户的授权，在网页或移动应用，一般�
 
 每种类型详细描述如下：
 
-### 3.1 Web服务应用 Web Server Apps
+### 3.1 服务端应用
 
 Web服务应用是使用OAuth服务时最常见的应用类型。
 
@@ -130,7 +133,7 @@ POST https://api.oauth2server.com/token
 
 处于安全考虑，服务必须要求app提前注册它们的redirect URIs。
 
-### 3.2 浏览器应用 Single-Page Apps
+### 3.2 浏览器应用
 
 浏览器应用完全运行在浏览器里。由于整个代码都可在浏览器获得，并不能保证secret的安全性，所以在这里不使用secrect。
 整个流程跟上面一致，不过最后一步里，用auth code交换access token时不使用client secret。
@@ -289,7 +292,7 @@ POST https://api.oauth2server.com/token
     client_secret=CLIENT_SECRET
 ```
 
-## 4. 进行被授权请求 Making Authenticated Requests
+## 4. 被授权请求
 
 所有的授权类型的结果都是获得一个access token，这时便可以使用这个token访问API。
 
