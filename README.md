@@ -185,7 +185,7 @@ Create a "Log in" button sending the user to either the native app of the servic
 On iPhone, apps can register a custom URI protocol such as "facebook://" so the native Facebook app is launched whenever a URL with that protocol is visited. 
 On Android, apps can register URL matching patterns which will launch the native app if a URL matching the pattern is visited.
 
-##### Using the Service's Native App
+##### 3.3.1.1 Using the Service's Native App
 
 If the user has the native Facebook app installed, direct them to the following URL:
 
@@ -203,7 +203,7 @@ For servers that support the PKCE extension (and if you're building a server, yo
 - **code_challenge_method=S256** - Indicates the hashing method used to compute the challenge, in this case, sha256.
 Note that your redirect URI will probably look like fb00000000://authorize where the protocol is a custom URL scheme that your app has registered with the OS.
 
-##### Using a Web Browser
+##### 3.3.1.2 Using a Web Browser
 
 If the service does not have a native application, you can launch a mobile browser to the standard web authorization URL. Note that you should never use an embedded web view in your own application, as this provides the user no guarantee that they are actually are entering their password in the service's website rather than a phishing site.
 
