@@ -12,34 +12,40 @@
 
 ## 1. 角色 Roles: Applications, APIs and Users
 
-**Client**  第三方应用 The Third-Party Application
+**Client**  应用程序 Applications
 
-The client is the application that is attempting to get access to the user's account. It needs to get permission from the user before it can do so.
+第三方应用程序，它需要访问用户账号。它必须提前获得许可。
 
-**Resource Server** API服务器
+**Resource Server** 资源服务器
 
-The resource server is the API server used to access the user's information.
+保存用户可访问信息的API服务器。
 
-**The Authorization Server**
+**The Authorization Server** 授权服务器
 
-This is the server that presents the interface where the user approves or denies the request. In smaller implementations, this may be the same server as the API server, but larger scale deployments will often build this as a separate component.
+提供用户许可或者拒绝请求的界面。
 
-**Resource Owner** 用户
+**Resource Owner** Users 资源拥有者
 
-The resource owner is the person who is giving access to some portion of their account.
+用户，资源所有者，他允许自己账号的部分资源被访问。
 
+## 2. 创建应用 Creating an App
 
-## 2. Creating an App
+在OAuth过程开始之前，必须在服务里注册这个app。 注册新的app时，需要提供的基本信息包括：应用名称，网址，logo以及一个redirect URI来重定向用户。
 
-Before you can begin the OAuth process, you must first register a new app with the service. When registering a new app, you usually register basic information such as application name, website, a logo, etc. In addition, you must register a redirect URI to be used for redirecting users to for web server, browser-based, or mobile apps.
+**Redirect URIs** 重定向地址
 
-**Redirect URIs**
+服务仅会重定向用户到注册过的一个URI，以避免攻击。
+任何redirect URIs必须被TLS保护，所以服务金辉重定向到`https`开头的URI。
+这可以防止在授权过程中token被截取。
 
-The service will only redirect users to a registered URI, which helps prevent some attacks. Any HTTP redirect URIs must be protected with TLS security, so the service will only redirect to URIs beginning with "https". This prevents tokens from being intercepted during the authorization process. Native apps may register a redirect URI with a custom URL scheme for the application, which may look like demoapp://redirect.
+Native apps may register a redirect URI with a custom URL scheme for the application, which may look like demoapp://redirect.
 
 **Client ID and Secret**
 
-After registering your app, you will receive a client ID and a client secret. The client ID is considered public information, and is used to build login URLs, or included in Javascript source code on a page. The client secret must be kept confidential. If a deployed app cannot keep the secret confidential, such as single-page Javascript apps or native apps, then the secret is not used, and ideally the service shouldn't issue a secret to these types of apps in the first place.
+注册完应用以后，会获得一个client ID 和一个client secret。
+
+- **client ID** 是公开信息，用来构建登录地址，或被页面里面的js代码所引用。
+- **client secret** 必须保密，如果一个应用不能保证保密，比如SPA或原生应用，这时就不使用secret。 理想情况下，一开始服务就不应该将secrect发给这些应用。
 
 ## 3. Authorization: Obtaining an access token
 
@@ -286,3 +292,7 @@ https://api.oauth2server.com/1/me`
 
 That's it! Make sure you always send requests over HTTPS and never ignore invalid certificates. HTTPS is the only thing protecting requests from being intercepted or modified.
 
+
+## 词汇表
+
+- authorization 授权
