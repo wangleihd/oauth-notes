@@ -1,6 +1,6 @@
 # OAuth 
 
-## 角色 Roles: Applications, APIs and Users
+## 1. 角色 Roles: Applications, APIs and Users
 
 **Client**  第三方应用 The Third-Party Application
 
@@ -19,7 +19,7 @@ This is the server that presents the interface where the user approves or denies
 The resource owner is the person who is giving access to some portion of their account.
 
 
-## Creating an App
+## 2. Creating an App
 
 Before you can begin the OAuth process, you must first register a new app with the service. When registering a new app, you usually register basic information such as application name, website, a logo, etc. In addition, you must register a redirect URI to be used for redirecting users to for web server, browser-based, or mobile apps.
 
@@ -31,9 +31,7 @@ The service will only redirect users to a registered URI, which helps prevent so
 
 After registering your app, you will receive a client ID and a client secret. The client ID is considered public information, and is used to build login URLs, or included in Javascript source code on a page. The client secret must be kept confidential. If a deployed app cannot keep the secret confidential, such as single-page Javascript apps or native apps, then the secret is not used, and ideally the service shouldn't issue a secret to these types of apps in the first place.
 
-
-
-## Authorization: Obtaining an access token
+## 3. Authorization: Obtaining an access token
 
 The first step of OAuth 2 is to get authorization from the user. For browser-based or mobile apps, this is usually accomplished by displaying an interface provided by the service to the user.
 
@@ -45,7 +43,7 @@ OAuth 2 provides several "grant types" for different use cases. The grant types 
 - **Implicit** was previously recommended for clients without a secret, but has been superceded by using the Authorization Code grant with no secret.
 Each use case is described in detail below.
 
-### Web Server Apps
+### 3.1 Web Server Apps
 
 Web server apps are the most common type of application you encounter when dealing with OAuth servers. Web apps are written in a server-side language and run on a server where the source code of the application is not available to the public. This means the application is able to use its client secret when communicating with the authorization server, which can help avoid some attack vectors.
 
@@ -113,7 +111,7 @@ or if there was an error
 Security: Note that the service must require apps to pre-register their redirect URIs.
 
 
-### Single-Page Apps
+### 3.2 Single-Page Apps
 
 Single-page apps (or browser-based apps) run entirely in the browser after loading the source code from a web page. Since the entire source code is available to the browser, they cannot maintain the confidentiality of their client secret, so the secret is not used in this case. The flow is exactly the same as the authorization code flow above, but at the last step, the authorization code is exchanged for an access token without using the client secret.
 
@@ -157,7 +155,7 @@ You should first compare this state value to ensure it matches the one you start
 - **client_id=CLIENT_ID** - The client ID you received when you first created the application
 
 
-### Mobile Apps
+### 3.3 Mobile Apps
 
 Like browser-based apps, mobile apps also cannot maintain the confidentiality of their client secret. Because of this, mobile apps must also use an OAuth flow that does not require a client secret. There are some additional concerns that mobile apps should keep in mind to ensure the security of the OAuth flow.
 
@@ -231,7 +229,7 @@ The authorization server will verify this request and return an access token.
 
 If the server supports PKCE, then the authorization server will recognize that this code was generated with a code challenge, and will hash the provided plaintext and confirm that the hashed version corresponds with the hashed string that was sent in the initial authorization request. This ensures the security of using the authorization code flow with clients that don't support a secret.
 
-### Other Grant Types
+### 3.4 Other Grant Types
 
 **Password**
 
@@ -267,7 +265,7 @@ To use the client credentials grant type, make a POST request like the following
 The response will include an access token in the same format as the other grant types.
 
 
-## Making Authenticated Requests
+## 4. Making Authenticated Requests
 
 The end result of all the grant types is obtaining an access token.
 
