@@ -47,7 +47,7 @@ Native apps may register a redirect URI with a custom URL scheme for the applica
 - **client ID** 是公开信息，用来构建登录地址，或被页面里面的js代码所引用。
 - **client secret** 必须保密，如果一个应用不能保证保密，比如SPA或原生应用，这时就不使用secret。 理想情况下，一开始服务就不应该将secrect发给这些应用。
 
-## 3. Authorization: Obtaining an access token
+## 3. 授权过程：获取一个访问token
 
 The first step of OAuth 2 is to get authorization from the user. For browser-based or mobile apps, this is usually accomplished by displaying an interface provided by the service to the user.
 
@@ -135,8 +135,7 @@ Single-page apps (or browser-based apps) run entirely in the browser after loadi
 
 Create a "Log In" link sending the user to:
 
-`https://oauth2server.com/auth?response_type=code&
-  client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=photos&state=1234zyx`
+`https://oauth2server.com/auth?response_type=code&client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=photos&state=1234zyx`
 
 - **code** - Indicates that your server expects to receive an authorization code
 - **client_id** - The client ID you received when you first created the application
@@ -159,11 +158,13 @@ You should first compare this state value to ensure it matches the one you start
 
 **Token Exchange**
 
-`POST https://api.oauth2server.com/token
+```
+POST https://api.oauth2server.com/token
   grant_type=authorization_code&
   code=AUTH_CODE_HERE&
   redirect_uri=REDIRECT_URI&
-  client_id=CLIENT_ID`
+  client_id=CLIENT_ID
+```
 
 - **grant_type=authorization_code** - The grant type for this flow is authorization_code
 - **code=AUTH_CODE_HERE** - This is the code you received in the query string
@@ -183,8 +184,7 @@ Create a "Log in" button sending the user to either the native app of the servic
 
 If the user has the native Facebook app installed, direct them to the following URL:
 
-`fbauth2://authorize?response_type=code&client_id=CLIENT_ID
-  &redirect_uri=REDIRECT_URI&scope=email&state=1234zyx`
+`fbauth2://authorize?response_type=code&client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=email&state=1234zyx`
 
 - **response_type=code** - indicates that your server expects to receive an authorization code
 - **client_id=CLIENT_ID** - The client ID you received when you first created the application
@@ -204,8 +204,7 @@ If the service does not have a native application, you can launch a mobile brows
 
 You should either launch the native mobile browser, or use the new iOS "SafariViewController" to launch an embedded browser in your application. This API was added in iOS 9, and provides a mechanism to launch a browser inside the application that both shows the address bar so the user can confirm they're on the correct website, and also shares cookies with the real Safari browser. It also prevents the application from inspecting and modifying the contents of the browser, so can be considered secure.
 
-`https://facebook.com/dialog/oauth?response_type=code&client_id=CLIENT_ID
-  &redirect_uri=REDIRECT_URI&scope=email&state=1234zyx`
+`https://facebook.com/dialog/oauth?response_type=code&client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=email&state=1234zyx`
 
 Again, if the service supports PKCE, then those parameters should be included as well as described above.
 
@@ -253,11 +252,14 @@ OAuth 2 also provides a "password" grant type which can be used to exchange a us
 
 To use the password grant type, simply make a POST request like the following:
 
-`POST https://api.oauth2server.com/token
+```
+POST https://api.oauth2server.com/token
   grant_type=password&
   username=USERNAME&
   password=PASSWORD&
-  client_id=CLIENT_ID`
+  client_id=CLIENT_ID
+```
+
 - **grant_type=password** - The grant type for this flow is password
 - **username=USERNAME** - The user's username as collected by the application
 - **password=PASSWORD** - The user's password as collected by the application
@@ -273,25 +275,25 @@ In some cases, applications may need an access token to act on behalf of themsel
 
 To use the client credentials grant type, make a POST request like the following:
 
-`POST https://api.oauth2server.com/token
+```
+POST https://api.oauth2server.com/token
     grant_type=client_credentials&
     client_id=CLIENT_ID&
-    client_secret=CLIENT_SECRET`
+    client_secret=CLIENT_SECRET
+```
 
 The response will include an access token in the same format as the other grant types.
 
 
-## 4. Making Authenticated Requests
+## 4. 进行被授权请求 Making Authenticated Requests
 
-The end result of all the grant types is obtaining an access token.
+所有的授权类型的结果都是获得一个access token，这时便可以使用这个token访问API。
 
-Now that you have an access token, you can make requests to the API. You can quickly make an API request using cURL as follows:
+使用curl进行访问示例如下：
 
-`curl -H "Authorization: Bearer RsT5OjbzRn430zqMLgV3Ia" \
-https://api.oauth2server.com/1/me`
+`curl -H "Authorization: Bearer RsT5OjbzRn430zqMLgV3Ia" https://api.oauth2server.com/1/me`
 
-That's it! Make sure you always send requests over HTTPS and never ignore invalid certificates. HTTPS is the only thing protecting requests from being intercepted or modified.
-
+确保永远使用https提交请求，https是唯一确保请求不被截取或者修改的方法。
 
 ## 词汇表
 
