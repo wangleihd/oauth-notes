@@ -66,7 +66,7 @@ Web服务应用是使用OAuth服务时最常见的应用类型。
 
 Web服务应用使用服务端语言编写，并运行在服务器上，源码并不可以公开获取。这意味着，应用可以使用client secret和授权服务器通信。
 
-**授权**
+#### 3.1.1 授权
 
 创建一个“登录”链接并发送给用户
 
@@ -92,7 +92,7 @@ Web服务应用使用服务端语言编写，并运行在服务器上，源码�
 你首先需要比较state值，确保和开始那个一致。 你可以将这个值保存在cookie或者session里，等用户回来时比较。这可以保证重定向端点不能陷入随意交换授权码的问题。
 
 
-**交换Token**
+#### 3.1.2 交换Token
 
 你的服务器通过auth code获取access token:
 
@@ -130,13 +130,13 @@ POST https://api.oauth2server.com/token
 
 处于安全考虑，服务必须要求app提前注册它们的redirect URIs。
 
-### 3.2 SPA应用 Single-Page Apps
+### 3.2 浏览器应用 Single-Page Apps
 
-SPA应用完全运行在浏览器里。由于整个代码都可在浏览器获得，并不能保证secret的安全性，所以在这里不使用secrect。
+浏览器应用完全运行在浏览器里。由于整个代码都可在浏览器获得，并不能保证secret的安全性，所以在这里不使用secrect。
 整个流程跟上面一致，不过最后一步里，用auth code交换access token时不使用client secret。
 
 
-**授权**
+#### 3.2.1 授权
 
 创建一个“登录”链接并发送给用户
 
@@ -161,7 +161,7 @@ SPA应用完全运行在浏览器里。由于整个代码都可在浏览器获�
 
 你首先需要比较state值，确保和开始那个一致。 你可以将这个值保存在cookie或者session里，等用户回来时比较。这可以保证重定向端点不能陷入随意交换授权码的问题。
 
-**交换Token**
+#### 3.2.2 交换Token
 
 ```
 POST https://api.oauth2server.com/token
@@ -175,15 +175,17 @@ POST https://api.oauth2server.com/token
 - **redirect_uri=REDIRECT_URI** - 必须与开始的那个redirect URI一致
 - **client_id=CLIENT_ID** - 第一次创建应用时获取的client ID
 
-### 3.3 Mobile Apps
+### 3.3 移动应用
 
-Like browser-based apps, mobile apps also cannot maintain the confidentiality of their client secret. Because of this, mobile apps must also use an OAuth flow that does not require a client secret. There are some additional concerns that mobile apps should keep in mind to ensure the security of the OAuth flow.
+和浏览器应用一样，移动应用也不能在保存client secret。所以移动应用也必须使用不需要client secret的OAuth流程。此外，移动应用还要考虑一些额外的工作来确保流程的安全性。
 
-**Authorization**
+#### 3.3.1 授权
 
-Create a "Log in" button sending the user to either the native app of the service on the phone, or a mobile web page for the service. On iPhone, apps can register a custom URI protocol such as "facebook://" so the native Facebook app is launched whenever a URL with that protocol is visited. On Android, apps can register URL matching patterns which will launch the native app if a URL matching the pattern is visited.
+Create a "Log in" button sending the user to either the native app of the service on the phone, or a mobile web page for the service. 
+On iPhone, apps can register a custom URI protocol such as "facebook://" so the native Facebook app is launched whenever a URL with that protocol is visited. 
+On Android, apps can register URL matching patterns which will launch the native app if a URL matching the pattern is visited.
 
-**Using the Service's Native App**
+##### Using the Service's Native App
 
 If the user has the native Facebook app installed, direct them to the following URL:
 
@@ -201,7 +203,7 @@ For servers that support the PKCE extension (and if you're building a server, yo
 - **code_challenge_method=S256** - Indicates the hashing method used to compute the challenge, in this case, sha256.
 Note that your redirect URI will probably look like fb00000000://authorize where the protocol is a custom URL scheme that your app has registered with the OS.
 
-**Using a Web Browser**
+##### Using a Web Browser
 
 If the service does not have a native application, you can launch a mobile browser to the standard web authorization URL. Note that you should never use an embedded web view in your own application, as this provides the user no guarantee that they are actually are entering their password in the service's website rather than a phishing site.
 
@@ -220,7 +222,7 @@ The user will see the authorization prompt
 
 ![Facebook Authorization Prompt](imgs/everyday-city-auth.png)
 
-**Token Exchange**
+## 3.3.2 Token Exchange
 
 After clicking "Approve", the user will be redirected back to your application with a URL like
 
@@ -230,12 +232,14 @@ Your mobile application should first verify that the state corresponds to the st
 
 The token exchange will look the same as exchanging the code in the web server app case, except that the secret is not sent. If the server supports PKCE, then you will need to include an additional parameter as described below.
 
-`POST https://api.oauth2server.com/token
+```
+POST https://api.oauth2server.com/token
   grant_type=authorization_code&
   code=AUTH_CODE_HERE&
   redirect_uri=REDIRECT_URI&
   client_id=CLIENT_ID&
-  code_verifier=VERIFIER_STRING`
+  code_verifier=VERIFIER_STRING
+```  
 
 - **grant_type=authorization_code** - The grant type for this flow is authorization_code
 - **code=AUTH_CODE_HERE** - This is the code you received in the query string
