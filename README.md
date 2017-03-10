@@ -255,7 +255,7 @@ The authorization server will verify this request and return an access token.
 
 If the server supports PKCE, then the authorization server will recognize that this code was generated with a code challenge, and will hash the provided plaintext and confirm that the hashed version corresponds with the hashed string that was sent in the initial authorization request. This ensures the security of using the authorization code flow with clients that don't support a secret.
 
-### 3.4 密码Password
+### 3.4 密码
 
 
 OAuth 2 也提供密码授权类型，用户可以通过用户名和密码直接获得access token。 由于这种方式需要采集用户密码，所以只能用于服务自身创建的应用程序。比如原生的Twitter应用可以使用用户密码登录手机和桌面应用。
@@ -279,7 +279,7 @@ POST https://api.oauth2server.com/token
 
 注意，这里并不使用client secret，因为多数情况下是移动或桌面应用，secrect并不会被保护。
 
-### 3.5 应用访问Application access
+### 3.5 应用访问
 
 有些场合，应用需要获得一个自己使用的access token，而不是任何具体用户的，OAuth针对这种情况提供了client_credentials类型的授权。
 
