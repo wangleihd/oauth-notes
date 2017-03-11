@@ -308,7 +308,7 @@ POST https://api.oauth2server.com/token
 
 确保永远使用https提交请求，https是唯一确保请求不被截取或者修改的方法。
 
-## 词汇表
+## 参考资料
 
-- authorization 授权
-- authorization code
+- [OAuth 2 Simplified](https://aaronparecki.com/oauth-2-simplified/)
+- [An Introduction to OAuth 2](https://www.digitalocean.com/community/tutorials/an-introduction-to-oauth-2)
