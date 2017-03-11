@@ -1,19 +1,9 @@
 # OAuth 
 
-## 目录
-- 1. 角色
-- 2. 创建应用
-- 3. 授权过程
-  - 3.1 服务端应用
-  - 3.2 浏览器应用
-  - 3.3 移动应用
-  - 3.4 密码
-  - 3.5 应用访问
-- 4. 被授权请求
 
 相关术语使用英文描述，不做翻译。
 
-## 1. 角色
+## 1. OAuth Roles 角色
 
 OAuth 定义了四个角色
 
@@ -34,8 +24,21 @@ OAuth 定义了四个角色
 需要访问用户账号的应用程序。
 它必须提前获得用户授权，而该授权必须被API验证通过。
 
+## 2. Abstract Protocol Flow 一般流程
 
-## 2. 创建应用
+下图展示了一般流程，根据grant type的不同，细节略有不同。
+
+![](imgs/abstract_flow.png)
+
+1. 应用(application)向用户做申请授权(authorization request)，以访问服务资源
+2. 如果用户授权这个申请，则应用(application)可以获得用户的authorization grant
+3. 应用(application)向服务提供自己的application identity和用户的authorization grant，以请求access token 
+4. 如果application identity和authorization grant都有效，则服务会向应用(application)发送一个access token。授权结束。
+5. 应用(application)从服务请求资源，并提供access token。
+6. 如果access token有效，则服务向应用提供资源。
+
+
+## 3. Application Registration 应用注册 
 
 在OAuth过程开始之前，必须在服务里注册这个app。 注册新的app时，需要提供的基本信息包括：应用名称，网址，logo以及一个redirect URI来重定向用户。
 
@@ -54,7 +57,7 @@ Native apps may register a redirect URI with a custom URL scheme for the applica
 - **client ID** 是公开信息，用来构建登录地址，或被页面里面的js代码所引用。
 - **client secret** 必须保密，如果一个应用不能保证保密，比如SPA或原生应用，这时就不使用secret。 理想情况下，一开始服务就不应该将secrect发给这些应用。
 
-## 3. 授权过程
+## 4. 授权过程
 
 授权过程就是获取一个 access token的过程。
 
@@ -69,13 +72,13 @@ OAuth2 得第一步是获得用户的授权，在网页或移动应用，一般�
 
 每种类型详细描述如下：
 
-### 3.1 服务端应用
+### 4.1 服务端应用
 
 Web服务应用是使用OAuth服务时最常见的应用类型。
 
 Web服务应用使用服务端语言编写，并运行在服务器上，源码并不可以公开获取。这意味着，应用可以使用client secret和授权服务器通信。
 
-#### 3.1.1 授权
+#### 4.1.1 授权
 
 创建一个“登录”链接并发送给用户
 
@@ -101,7 +104,7 @@ Web服务应用使用服务端语言编写，并运行在服务器上，源码�
 你首先需要比较state值，确保和开始那个一致。 你可以将这个值保存在cookie或者session里，等用户回来时比较。这可以保证重定向端点不能陷入随意交换授权码的问题。
 
 
-#### 3.1.2 交换Token
+#### 4.1.2 交换Token
 
 你的服务器通过auth code获取access token:
 
@@ -139,13 +142,13 @@ POST https://api.oauth2server.com/token
 
 处于安全考虑，服务必须要求app提前注册它们的redirect URIs。
 
-### 3.2 浏览器应用
+### 4.2 浏览器应用
 
 浏览器应用完全运行在浏览器里。由于整个代码都可在浏览器获得，并不能保证secret的安全性，所以在这里不使用secrect。
 整个流程跟上面一致，不过最后一步里，用auth code交换access token时不使用client secret。
 
 
-#### 3.2.1 授权
+#### 4.2.1 授权
 
 创建一个“登录”链接并发送给用户
 
@@ -170,7 +173,7 @@ POST https://api.oauth2server.com/token
 
 你首先需要比较state值，确保和开始那个一致。 你可以将这个值保存在cookie或者session里，等用户回来时比较。这可以保证重定向端点不能陷入随意交换授权码的问题。
 
-#### 3.2.2 交换Token
+#### 4.2.2 交换Token
 
 ```
 POST https://api.oauth2server.com/token
@@ -184,18 +187,18 @@ POST https://api.oauth2server.com/token
 - **redirect_uri=REDIRECT_URI** - 必须与开始的那个redirect URI一致
 - **client_id=CLIENT_ID** - 第一次创建应用时获取的client ID
 
-### 3.3 移动应用
+### 4.3 移动应用
 
 和浏览器应用一样，移动应用也不能在保存client secret。所以移动应用也必须使用不需要client secret的OAuth流程。此外，移动应用还要考虑一些额外的工作来确保流程的安全性。
 
-#### 3.3.1 授权
+#### 4.3.1 授权
 
 创建一个“登录”按钮，发送用户给这个服务在手机上的原生应用或者移动网页。
 
 * 在iPhone手机里，应用可以注册一个自定义URI协议，比如"facebook://"，从而当具备这个形式URL被访问时，都会启动facebook应用。
 * 在安卓手机里，应用可以注册一个特殊的URL，当这个URL被访问时，直接启动原生应用。
 
-##### 3.3.1.1 使用服务的原生App
+##### 4.3.1.1 使用服务的原生App
 
 如果用户安装了Facebook的原生应用，将它定向到下述URL
 
@@ -213,7 +216,7 @@ For servers that support the PKCE extension (and if you're building a server, yo
 - **code_challenge_method=S256** - Indicates the hashing method used to compute the challenge, in this case, sha256.
 Note that your redirect URI will probably look like fb00000000://authorize where the protocol is a custom URL scheme that your app has registered with the OS.
 
-##### 3.3.1.2 使用浏览器
+##### 4.3.1.2 使用浏览器
 
 If the service does not have a native application, you can launch a mobile browser to the standard web authorization URL. Note that you should never use an embedded web view in your own application, as this provides the user no guarantee that they are actually are entering their password in the service's website rather than a phishing site.
 
@@ -232,7 +235,7 @@ The user will see the authorization prompt
 
 ![Facebook Authorization Prompt](imgs/everyday-city-auth.png)
 
-## 3.3.2 Token Exchange
+## 4.3.2 Token Exchange
 
 After clicking "Approve", the user will be redirected back to your application with a URL like
 
@@ -261,7 +264,7 @@ The authorization server will verify this request and return an access token.
 
 If the server supports PKCE, then the authorization server will recognize that this code was generated with a code challenge, and will hash the provided plaintext and confirm that the hashed version corresponds with the hashed string that was sent in the initial authorization request. This ensures the security of using the authorization code flow with clients that don't support a secret.
 
-### 3.4 密码
+### 4.4 密码
 
 
 OAuth 2 也提供密码授权类型，用户可以通过用户名和密码直接获得access token。 由于这种方式需要采集用户密码，所以只能用于服务自身创建的应用程序。比如原生的Twitter应用可以使用用户密码登录手机和桌面应用。
@@ -285,7 +288,7 @@ POST https://api.oauth2server.com/token
 
 注意，这里并不使用client secret，因为多数情况下是移动或桌面应用，secrect并不会被保护。
 
-### 3.5 应用访问
+### 4.5 应用访问
 
 有些场合，应用需要获得一个自己使用的access token，而不是任何具体用户的，OAuth针对这种情况提供了client_credentials类型的授权。
 
@@ -298,7 +301,7 @@ POST https://api.oauth2server.com/token
     client_secret=CLIENT_SECRET
 ```
 
-## 4. 被授权请求
+## 5. 请求服务
 
 所有的授权类型的结果都是获得一个access token，这时便可以使用这个token访问API。
 
