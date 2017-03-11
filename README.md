@@ -11,23 +11,29 @@
   - 3.5 应用访问
 - 4. 被授权请求
 
+相关术语使用英文描述，不做翻译。
+
 ## 1. 角色
 
-**Client**  应用程序 Applications
+OAuth 定义了四个角色
 
-第三方应用程序，它需要访问用户账号。它必须提前获得许可。
+**Resource Owner** User
 
-**Resource Server** 资源服务器
+授权*application*访问自己账号的用户，*application*访问账号被限于授权所允许的*scope*。
 
-保存用户可访问信息的API服务器。
+**Resource Server** API 或 Service
 
-**The Authorization Server** 授权服务器
+保存受保护的用户账户。
 
-提供用户许可或者拒绝请求的界面。
+**Authorization Server** API 或 Service
 
-**Resource Owner** Users 资源拥有者
+提供用户许可界面，认证成功后给application发送access token。
 
-用户，资源所有者，他允许自己账号的部分资源被访问。
+**Client**  Applications
+
+需要访问用户账号的应用程序。
+它必须提前获得用户授权，而该授权必须被API验证通过。
+
 
 ## 2. 创建应用
 
