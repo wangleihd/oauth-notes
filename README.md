@@ -40,22 +40,27 @@ OAuth 定义了四个角色
 
 ## 3. Application Registration 应用注册 
 
-在OAuth过程开始之前，必须在服务里注册这个app。 注册新的app时，需要提供的基本信息包括：应用名称，网址，logo以及一个redirect URI来重定向用户。
+在使用OAuth之前，必须在服务里注册应用(application)。
+这个过程一般是在服务网站的注册表单(registration form)里进行的，你需要提供如下信息
 
-**Redirect URIs** 重定向地址
+- Application Name
+- Application Website
+- Redirect URI or Callback URL
 
-服务仅会重定向用户到注册过的一个URI，以避免攻击。
-任何redirect URIs必须被TLS保护，所以服务金辉重定向到`https`开头的URI。
-这可以防止在授权过程中token被截取。
+### 3.1 Redirect URI
 
-Native apps may register a redirect URI with a custom URL scheme for the application, which may look like demoapp://redirect.
+redirect URI是服务授权（或拒绝）application后，将用户重定向的网址。然后application就会处理authorization codes或access tokens。
 
-**Client ID and Secret**
+服务仅会重定向到注册过的这个URI，以避免攻击。而任何redirect URIs必须被TLS保护（以`https`开头），这可以防止在授权过程中token被截取。
 
-注册完应用以后，会获得一个client ID 和一个client secret。
+原生应用可能注册一个特殊的URL，比如demoapp://redirect。
 
-- **client ID** 是公开信息，用来构建登录地址，或被页面里面的js代码所引用。
-- **client secret** 必须保密，如果一个应用不能保证保密，比如SPA或原生应用，这时就不使用secret。 理想情况下，一开始服务就不应该将secrect发给这些应用。
+### 3.2 Client ID and Secret
+
+注册以后，服务会返回client credentials，包括一个client identifier和一个client secret。
+
+- **client ID** 是一个公开字符串，被服务用来识别application，也用来构建authorization URLs提供给用户。
+- **client secret** 当application请求访问用户账号时，在服务处验证application的identity，必须在application和服务间保密。如果application不能保证保密，比如SPA或原生应用，就不使用secret。
 
 ## 4. 授权过程
 
