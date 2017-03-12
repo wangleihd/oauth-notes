@@ -62,90 +62,109 @@ redirect URI是服务授权（或拒绝）application后，将用户重定向的
 - **client ID** 是一个公开字符串，被服务用来识别application，也用来构建authorization URLs提供给用户。
 - **client secret** 当application请求访问用户账号时，在服务处验证application的identity，必须在application和服务间保密。如果application不能保证保密，比如SPA或原生应用，就不使用secret。
 
-## 4. 授权过程
+## 4. Authorization Grant 
 
-授权过程就是获取一个 access token的过程。
+授权过程就是获取一个access token的过程。
+在上面的流程图里，前四步包括获取authorization grant和access token. 而authorization grant type 
+依赖于应用申请授权的方法和服务器提供的grant types。OAuth2 定义了4种，针对不同的场合：
 
-OAuth2 得第一步是获得用户的授权，在网页或移动应用，一般是向用户显示一个服务提供的界面。
+- **Authorization Code** 运行在服务端的应用（server-side Applications）
+- **Implicit**  移动应用(Mobile Apps)和Web应用(Web Applications)。
+- **Resource Owner Password Credentials** 用于可信任应用，比如服务自己的应用。
+- **Client Credentials** 应用API请求 application access
 
-针对不同的场景，提供了几种不同的"grant types"，如下:
+### 4.1 Grant Type: Authorization Code
 
-- **Authorization Code** for apps running on a web server, browser-based and mobile apps
-- **Password** 使用用户名密码登录
-- **Client credentials** for application access
-- **Implicit** was previously recommended for clients without a secret, but has been superceded by using the Authorization Code grant with no secret.
+这是最常见的grant type，因为它针对server-side applications做了优化。这种场合下服务器源码不公开，所以可以保证Client Secret的保密性。
 
-每种类型详细描述如下：
+This is a redirection-based flow, which means that the application must be capable of interacting with the user-agent (i.e. the user's web browser) and receiving API authorization codes that are routed through the user-agent.
 
-### 4.1 服务端应用
+authorization code流程如下图所示:
 
-Web服务应用是使用OAuth服务时最常见的应用类型。
+![](imgs/auth_code_flow.png)
 
-Web服务应用使用服务端语言编写，并运行在服务器上，源码并不可以公开获取。这意味着，应用可以使用client secret和授权服务器通信。
+#### Step 1: Authorization Code Link
 
-#### 4.1.1 授权
+首先给用户一个下面这样的 authorization code link 
 
-创建一个“登录”链接并发送给用户
+```
+https://cloud.digitalocean.com/v1/oauth/authorize?response_type=code&client_id=CLIENT_ID&redirect_uri=CALLBACK_URL&scope=read
+```
+- **https://cloud.digitalocean.com/v1/oauth/authorize**: API authorization endpoint
+- **client_id=client_id**: application的client ID (API用来确认这个application是谁)
+- **redirect_uri=CALLBACK_URL**: where the service redirects the user-agent after an authorization code is granted
+- **response_type=code**: 表示application希望获取一个authorization code grant
+- **scope=read**: specifies the level of access that the application is requesting
 
-`https://oauth2server.com/auth?response_type=code&client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=photos&state=1234zyx`
-
-- **code** - 表示服务希望获得一个授权码(authorization code)
-- **client_id** - 第一次创建应用时获取的client ID
-- **redirect_uri** - 授权结束以后返回给用户的URI
-- **scope** -  一个或多个范围值，表示你希望访问用户的哪些资源
 - **state** - 应用程序生成的随机字符串，后面需要验证
 
-然后，用户看到如下提示界面：
+#### Step 2: User Authorizes Application
 
-![OAuth Authorization Prompt](imgs/oauth-authorization-prompt.png)
+当用户点击上面的链接后，他必须先登录服务（或者已处于登录状态），以验证自己的身份。然后，他会看到服务给出的提示界面，用以授权或者拒绝。
 
-如果用户点击“Allow”则服务重定向用户，则服务会重定向到你的网站，并附上一个auth code
+![](imgs/authcode.png)
 
-`https://oauth2client.com/cb?code=AUTH_CODE_HERE&state=1234zyx`
+上面这个提示里，*Thedropletbook App*这个application正在申请*manicas@digitalocean.com*这个账号的**read**授权。
 
-- **code** - 服务在查询字符串里返回授权码
-- **state** - 服务返回你传递的同样的状态字符串
+#### Step 3: Application Receives Authorization Code
 
-你首先需要比较state值，确保和开始那个一致。 你可以将这个值保存在cookie或者session里，等用户回来时比较。这可以保证重定向端点不能陷入随意交换授权码的问题。
+如果用户点击"Authorize Application", 则服务会将user-agent重定向到application registration时给出的 redirect URI，并附上一个authorization code。
+重定向有点类似如下的链接（假设应用是"dropletbook.com"）
 
+```
+https://dropletbook.com/callback?code=AUTHORIZATION_CODE
+```
 
-#### 4.1.2 交换Token
+#### Step 4: Application Requests Access Token
 
-你的服务器通过auth code获取access token:
+应用向API token endpoint发送authorization code以及其他authentication details（包括client secret）以请求access token。
 
-```sh
-POST https://api.oauth2server.com/token
-  grant_type=authorization_code&
-  code=AUTH_CODE_HERE&
-  redirect_uri=REDIRECT_URI&
+下面是一个发向 DigitalOcean's token endpoint的POST例子:
+
+```
+https://cloud.digitalocean.com/v1/oauth/token?
   client_id=CLIENT_ID&
-  client_secret=CLIENT_SECRET
+  client_secret=CLIENT_SECRET&
+  grant_type=authorization_code&
+  code=AUTHORIZATION_CODE&
+  redirect_uri=CALLBACK_URL
 ```
 
 - **grant_type=authorization_code** - 这个流程的grant type是authorization_code
-- **code=AUTH_CODE_HERE** - 你从query string获得的auth code
-- **redirect_uri=REDIRECT_URI** - 必须与开始的那个redirect URI一致
+- **code=AUTHORIZATION_CODE** - 你从query string获得的authorization code
+- **redirect_uri=CALLBACK_URL** - 必须与开始的那个redirect URI一致
 - **client_id=CLIENT_ID** - 第一次创建应用时获取的client ID
 - **client_secret=CLIENT_SECRET** - 因为这个request是从服务端发起的，所以可以带上secret
 
-服务返回一个带失效期的access token
+
+
+#### Step 5: Application Receives Access Token
+
+如果authorization有效，则API则会向application发送一个包括access token的response。完整的response类似下面的示例:
 
 ```
 {
-  "access_token":"RsT5OjbzRn430zqMLgV3Ia",
-  "expires_in":3600
+  "access_token":"ACCESS_TOKEN",
+  "token_type":"bearer",
+  "expires_in":2592000,
+  "refresh_token":"RsT5OjbzRn430zqMLgV3Ia",
+  "scope":"read",
+  "uid":100101,
+  "info":{
+    "name":"Mark E. Mark",
+    "email":"mark@thefunkybunch.com"
+  }
 }
 ```
+此时，application则被授权。它可以使用这个token访问在API访问被授权的用户账号，知道token过期或者重置。
 
-或者一个错误信息
+如果出现错误，则会返回一个错误信息
 
 ```
 {
   "error":"invalid_request"
 }
 ```
-
-处于安全考虑，服务必须要求app提前注册它们的redirect URIs。
 
 ### 4.2 浏览器应用
 
