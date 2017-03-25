@@ -291,3 +291,4 @@ https://cloud.digitalocean.com/v1/oauth/token?
 
 - [OAuth 2 Simplified](https://aaronparecki.com/oauth-2-simplified/)
 - [An Introduction to OAuth 2](https://www.digitalocean.com/community/tutorials/an-introduction-to-oauth-2)
+- [OAuth 2.0 by David Rice](https://www.youtube.com/playlist?list=PL675281900139F609) 使用银行的例子比较生动的图解
